@@ -1,14 +1,15 @@
 import styled from 'styled-components';
-import { useState, useEffect } from "react";
-import { useAppDispatch } from "./hooks/useRedux";
-import { fetchProducts } from "./api";
-import { setProducts } from "./redux/actions/productActions";
+import { useState, useEffect } from 'react';
+import { useAppDispatch } from './hooks/useRedux';
+import { fetchProducts, fetchCart } from './api';
+import { setProducts } from './redux/actions/productActions';
+import { setCart } from './redux/actions/cartActions';
 import { useAppSelector } from '../src/hooks/useRedux';
 import Header from './components/Header';
 import ProductCard from './components/ProductCard';
 import BillPanel from './components/BillPanel';
 import SpecialOffersPanel from './components/SpecialOffersPanel';
-import ProductSkeleton from "./components/ProductSkeleton";
+import ProductSkeleton from './components/ProductSkeleton';
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -77,14 +78,36 @@ export default function App() {
   const products = useAppSelector((state) => state.products.products);
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const bootstrap = async () => {
       setLoading(true);
-      const data = await fetchProducts();
-      dispatch(setProducts(data));
-      setLoading(false);
+      try {
+        // load products and cart in parallel
+        const [productData, cartData] = await Promise.all([
+          fetchProducts(),
+          fetchCart(),
+        ]);
+
+        dispatch(setProducts(productData));
+
+        // restore persisted cart from backend
+        if (cartData.items && cartData.items.length > 0) {
+          dispatch(
+            setCart(
+              cartData.items.map((i) => ({
+                productId: i.productId,
+                quantity: i.quantity,
+              }))
+            )
+          );
+        }
+      } catch (err) {
+        console.error('Failed to load initial data:', err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadProducts();
+    bootstrap();
   }, []);
 
   return (

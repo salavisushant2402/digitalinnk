@@ -1,4 +1,4 @@
-import { ADD_ITEM, REMOVE_ITEM, SET_QUANTITY, CLEAR_CART } from '../actions/cartActions';
+import { ADD_ITEM, REMOVE_ITEM, SET_QUANTITY, CLEAR_CART, SET_CART } from '../actions/cartActions';
 
 const initialState = {
   items: [],
@@ -6,10 +6,11 @@ const initialState = {
 
 export const cartReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CART:
+      return { ...state, items: action.payload };
+
     case ADD_ITEM: {
-      const existing = state.items.find(
-        (i) => i.productId === action.payload.productId
-      );
+      const existing = state.items.find((i) => i.productId === action.payload.productId);
       if (existing) {
         return {
           ...state,
@@ -27,16 +28,12 @@ export const cartReducer = (state = initialState, action) => {
     }
 
     case REMOVE_ITEM: {
-      const existing = state.items.find(
-        (i) => i.productId === action.payload.productId
-      );
+      const existing = state.items.find((i) => i.productId === action.payload.productId);
       if (!existing) return state;
       if (existing.quantity <= 1) {
         return {
           ...state,
-          items: state.items.filter(
-            (i) => i.productId !== action.payload.productId
-          ),
+          items: state.items.filter((i) => i.productId !== action.payload.productId),
         };
       }
       return {
@@ -52,10 +49,7 @@ export const cartReducer = (state = initialState, action) => {
     case SET_QUANTITY: {
       const { productId, quantity } = action.payload;
       if (quantity <= 0) {
-        return {
-          ...state,
-          items: state.items.filter((i) => i.productId !== productId),
-        };
+        return { ...state, items: state.items.filter((i) => i.productId !== productId) };
       }
       const existing = state.items.find((i) => i.productId === productId);
       if (existing) {
@@ -66,16 +60,13 @@ export const cartReducer = (state = initialState, action) => {
           ),
         };
       }
-      return {
-        ...state,
-        items: [...state.items, { productId, quantity }],
-      };
+      return { ...state, items: [...state.items, { productId, quantity }] };
     }
 
-    case CLEAR_CART:
-      return { ...state, items: [] };
+      case CLEAR_CART:
+        return { ...state, items: [] };
 
-    default:
-      return state;
+      default:
+        return state;
   }
 };
