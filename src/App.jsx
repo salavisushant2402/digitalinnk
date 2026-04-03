@@ -78,18 +78,15 @@ export default function App() {
   const products = useAppSelector((state) => state.products.products);
 
   useEffect(() => {
-    const bootstrap = async () => {
+    const syncCartData = async () => {
       setLoading(true);
       try {
-        // load products and cart in parallel
         const [productData, cartData] = await Promise.all([
           fetchProducts(),
           fetchCart(),
         ]);
 
         dispatch(setProducts(productData));
-
-        // restore persisted cart from backend
         if (cartData.items && cartData.items.length > 0) {
           dispatch(
             setCart(
@@ -107,7 +104,7 @@ export default function App() {
       }
     };
 
-    bootstrap();
+    syncCartData();
   }, []);
 
   return (

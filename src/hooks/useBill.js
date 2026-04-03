@@ -1,7 +1,4 @@
-import { useMemo } from 'react';
 import { useAppSelector } from './useRedux';
-import { calculateBill } from '../utils/pricing';
-import { SPECIAL_OFFERS } from '../constants';
 
 const EMPTY_BILL = {
   lines: [],
@@ -12,14 +9,18 @@ const EMPTY_BILL = {
 };
 
 export const useBill = () => {
-  const items = useAppSelector((state) => state.cart.items);
-  const products = useAppSelector((state) => state.products.products);
+    const items = useAppSelector((state) => state.cart.items);
+    const bill  = useAppSelector((state) => state.cart.bill);
 
-  return useMemo(() => {
-    if (items.length === 0 || products.length === 0) {
-      return EMPTY_BILL;
-    }
-
-    return calculateBill(items, products, SPECIAL_OFFERS);
-  }, [items, products]);
+    if (items.length === 0 || !bill) return EMPTY_BILL;
+    return {
+      subtotal:bill.subtotal,
+      totalSavings: bill.savings,
+      total:bill.total,
+      offerLines:(bill.offers || []).map((o) => ({
+        offerId: o.id,
+        label:   o.description,
+        saving:  o.saving,
+      })),
+    };
 };
