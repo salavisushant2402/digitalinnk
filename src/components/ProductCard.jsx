@@ -4,7 +4,7 @@ import { Plus, Minus } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { addItem, removeItem } from '../redux/actions/cartActions';
 
-const OFFER_PRODUCTS = new Set(['apples', 'soup', 'milk']);
+const OFFER_PRODUCTS = new Set(['cheese', 'soup', 'butter']);
 
 const Card = styled.div`
   position: relative;
@@ -200,7 +200,7 @@ export default function ProductCard({ product }) {
         <ProductDesc>{product.description}</ProductDesc>
 
         <PriceRow>
-          <Price>£{(product.price / 100).toFixed(2)}</Price>
+          <Price>£{product.price.toFixed(2)}</Price>
           <PriceUnit>/ {product.unit}</PriceUnit>
         </PriceRow>
 

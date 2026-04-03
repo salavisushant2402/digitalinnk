@@ -2,7 +2,7 @@
  * Format pence to a currency string  e.g. 135 → "£1.35"
  */
 export const formatCurrency = (pence) => {
-  return `£${(pence / 100).toFixed(2)}`;
+  return `£${(pence).toFixed(2)}`;
 };
 
 /**

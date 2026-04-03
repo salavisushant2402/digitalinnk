@@ -1,9 +1,14 @@
 import styled from 'styled-components';
+import { useState, useEffect } from "react";
+import { useAppDispatch } from "./hooks/useRedux";
+import { fetchProducts } from "./api";
+import { setProducts } from "./redux/actions/productActions";
+import { useAppSelector } from '../src/hooks/useRedux';
 import Header from './components/Header';
 import ProductCard from './components/ProductCard';
 import BillPanel from './components/BillPanel';
 import SpecialOffersPanel from './components/SpecialOffersPanel';
-import { PRODUCTS } from './constants';
+import ProductSkeleton from "./components/ProductSkeleton";
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -67,6 +72,21 @@ const Footer = styled.footer`
 `;
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const products = useAppSelector((state) => state.products.products);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      const data = await fetchProducts();
+      dispatch(setProducts(data));
+      setLoading(false);
+    };
+
+    loadProducts();
+  }, []);
+
   return (
     <PageWrapper>
       <Header />
@@ -77,9 +97,15 @@ export default function App() {
             <section>
               <SectionTitle>Today's Products</SectionTitle>
               <ProductsGrid>
-                {PRODUCTS.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+                {
+                  loading
+                    ? Array.from({ length: 6 }).map((_, i) => (
+                        <ProductSkeleton key={i} />
+                      ))
+                    : products.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))
+                }
               </ProductsGrid>
             </section>
           </LeftCol>

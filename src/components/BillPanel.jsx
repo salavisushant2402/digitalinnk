@@ -4,7 +4,6 @@ import { useBill } from '../hooks/useBill';
 import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { clearCart } from '../redux/actions/cartActions';
 import { formatCurrency } from '../utils/pricing';
-import { PRODUCTS } from '../constants';
 
 const fadeUp = keyframes`
   from { transform: translateY(10px); opacity: 0; }
@@ -239,6 +238,7 @@ const CheckoutBtn = styled.button`
 export default function BillPanel() {
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
+  const products = useAppSelector((state) => state.products.products);
   const bill = useBill();
 
   if (cartItems.length === 0) {
@@ -268,7 +268,7 @@ export default function BillPanel() {
         <div>
           <SectionLabel>Items</SectionLabel>
           {cartItems.map((item) => {
-            const product = PRODUCTS.find((p) => p.id === item.productId);
+            const product = products.find((p) => p.id === item.productId);
             const lineTotal = product.price * item.quantity;
             return (
               <LineRow key={item.productId}>
