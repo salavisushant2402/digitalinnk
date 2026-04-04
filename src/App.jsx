@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 import { useState, useEffect } from 'react';
-import { useAppDispatch } from './hooks/useRedux';
+import { useAppDispatch, useAppSelector } from './hooks/useRedux';
 import { fetchProducts, fetchCart } from './api';
 import { setProducts } from './redux/actions/productActions';
-import { setCart } from './redux/actions/cartActions';
-import { useAppSelector } from '../src/hooks/useRedux';
+import { setCart, SET_BILL } from './redux/actions/cartActions';
 import Header from './components/Header';
 import ProductCard from './components/ProductCard';
 import BillPanel from './components/BillPanel';
@@ -63,22 +62,13 @@ const ProductsGrid = styled.div`
   }
 `;
 
-const Footer = styled.footer`
-  text-align: center;
-  padding: 24px;
-  margin-top: 32px;
-  font-size: 0.75rem;
-  color: #aaaaaa;
-  border-top: 1px solid #f0e0c0;
-`;
-
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const dispatch = useAppDispatch();
-  const products = useAppSelector((state) => state.products.products);
+  const dispatch  = useAppDispatch();
+  const products  = useAppSelector((state) => state.products.products);
 
   useEffect(() => {
-    const syncCartData = async () => {
+    const bootstrap = async () => {
       setLoading(true);
       try {
         const [productData, cartData] = await Promise.all([
@@ -87,24 +77,26 @@ export default function App() {
         ]);
 
         dispatch(setProducts(productData));
-        if (cartData.items && cartData.items.length > 0) {
-          dispatch(
-            setCart(
-              cartData.items.map((i) => ({
-                productId: i.productId,
-                quantity: i.quantity,
-              }))
-            )
-          );
+
+        if (cartData.items?.length > 0) {
+          dispatch(setCart(cartData.items.map((i) => ({
+            productId: i.productId,
+            quantity:  i.quantity,
+          }))));
         }
+
+        if (cartData.bill) {
+          dispatch({ type: SET_BILL, payload: cartData.bill });
+        }
+
       } catch (err) {
-        console.error('Failed to load initial data:', err);
+        console.error('bootstrap failed:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    syncCartData();
+    bootstrap();
   }, []);
 
   return (
@@ -117,14 +109,9 @@ export default function App() {
             <section>
               <SectionTitle>Today's Products</SectionTitle>
               <ProductsGrid>
-                {
-                  loading
-                    ? Array.from({ length: 6 }).map((_, i) => (
-                        <ProductSkeleton key={i} />
-                      ))
-                    : products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                      ))
+                {loading
+                  ? Array.from({ length: 6 }).map((_, i) => <ProductSkeleton key={i} />)
+                  : products.map((product) => <ProductCard key={product.id} product={product} />)
                 }
               </ProductsGrid>
             </section>

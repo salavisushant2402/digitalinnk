@@ -1,13 +1,24 @@
-import { ADD_ITEM, REMOVE_ITEM, SET_QUANTITY, CLEAR_CART, SET_CART } from '../actions/cartActions';
+import {
+  ADD_ITEM,
+  REMOVE_ITEM,
+  SET_QUANTITY,
+  CLEAR_CART,
+  SET_CART,
+  SET_BILL,
+} from '../actions/cartActions';
 
 const initialState = {
   items: [],
+  bill: null,
 };
 
 export const cartReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CART:
       return { ...state, items: action.payload };
+
+    case SET_BILL:
+      return { ...state, bill: action.payload };
 
     case ADD_ITEM: {
       const existing = state.items.find((i) => i.productId === action.payload.productId);
@@ -63,10 +74,10 @@ export const cartReducer = (state = initialState, action) => {
       return { ...state, items: [...state.items, { productId, quantity }] };
     }
 
-      case CLEAR_CART:
-        return { ...state, items: [] };
+    case CLEAR_CART:
+      return { ...state, items: [], bill: null };
 
-      default:
-        return state;
+    default:
+      return state;
   }
 };

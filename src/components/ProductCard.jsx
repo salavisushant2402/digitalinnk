@@ -3,6 +3,8 @@ import styled, { css } from 'styled-components';
 import { Plus, Minus } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { addItem, removeItem } from '../redux/actions/cartActions';
+import { useBill } from '../hooks/useBill';
+import { useState } from 'react';
 
 const OFFER_PRODUCTS = new Set(['cheese', 'soup', 'butter']);
 
@@ -171,11 +173,20 @@ const QtyNum = styled.span`
 `;
 
 export default function ProductCard({ product }) {
+  // const [disabledButton, isDisabledButton] = useState(false);
   const dispatch = useAppDispatch();
   const quantity = useAppSelector(
     (state) =>
       state.cart.items.find((i) => i.productId === product.id)?.quantity ?? 0
   );
+
+  const bill = useBill();
+  const MAX_LIMIT = 20;
+  let range = MAX_LIMIT*90/100;
+
+  // if( bill.total >= MAX_LIMIT){
+  //   isDisabledButton(true)
+  // }
 
   const handleAdd = useCallback(
     () => dispatch(addItem(product.id)),
@@ -222,6 +233,7 @@ export default function ProductCard({ product }) {
             <QtyButton
               $variant="add"
               onClick={handleAdd}
+              disabled={bill.total >= MAX_LIMIT}
               aria-label={`Add another ${product.name}`}
             >
               <Plus size={14} strokeWidth={2.5} />

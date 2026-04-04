@@ -165,6 +165,14 @@ const OfferBoxLabel = styled.p`
   font-weight: 700;
 `;
 
+const AlertBoxLabel = styled.p`
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: #d9666b;
+  font-weight: 700;
+`;
+
 const OfferLine = styled.div`
   display: flex;
   justify-content: space-between;
@@ -240,6 +248,8 @@ export default function BillPanel() {
   const cartItems = useAppSelector((state) => state.cart.items);
   const products = useAppSelector((state) => state.products.products);
   const bill = useBill();
+  const MAX_LIMIT = 20;
+  let range = MAX_LIMIT*90/100;
 
   if (cartItems.length === 0) {
     return (
@@ -313,6 +323,12 @@ export default function BillPanel() {
           <TotalLabel>Total</TotalLabel>
           <TotalAmount>{formatCurrency(bill.total)}</TotalAmount>
         </TotalRow>
+
+        {
+          bill.total >= range && bill.total < MAX_LIMIT && (<AlertBoxLabel>
+          You have reached 90% of your daily budget.
+        </AlertBoxLabel>)
+        }
 
         <CheckoutBtn onClick={() => alert('Checkout not implemented in this demo')}>
           Proceed to Checkout
